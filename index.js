@@ -37,12 +37,19 @@ async function run() {
 
         const skip = (page-1)*limit;
         const searchQuery = req.query.searchItem || ''; // Get the search query
+        const categoryName = req.query.category || '';
+        const brandNameQuery =req.query.brand || '';
         try {
-            const query = searchQuery ? { productName: { $regex: searchQuery, $options: 'i' } } : {};
+            const query = {
+                ...(searchQuery && { productName: { $regex: searchQuery, $options: 'i' } }),
+                ...(brandNameQuery && { brand: { $regex: brandNameQuery, $options: 'i' } }),
+                ...(categoryName && { category: { $regex: categoryName, $options: 'i' } }),
+                // price: { $gte: minPrice, $lte: maxPrice }
+              };
             const products = await productsCollection.find(query).skip(skip).limit(limit).toArray();
             console.log(products.length)
             // Count the total number of products
-    const totalProducts = await productsCollection.estimatedDocumentCount();
+    const totalProducts = await productsCollection.estimatedDocumentCount(query);
     console.log('totalproducts:',totalProducts)
     res.json({
         products,
