@@ -36,8 +36,10 @@ async function run() {
         const limit = parseInt(req.query.limit) || 9;
 
         const skip = (page-1)*limit;
+        const searchQuery = req.query.searchItem || ''; // Get the search query
         try {
-            const products = await productsCollection.find().skip(skip).limit(limit).toArray();
+            const query = searchQuery ? { productName: { $regex: searchQuery, $options: 'i' } } : {};
+            const products = await productsCollection.find(query).skip(skip).limit(limit).toArray();
             console.log(products.length)
             // Count the total number of products
     const totalProducts = await productsCollection.estimatedDocumentCount();
