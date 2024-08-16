@@ -39,12 +39,14 @@ async function run() {
         const searchQuery = req.query.searchItem || ''; // Get the search query
         const categoryName = req.query.category || '';
         const brandNameQuery =req.query.brand || '';
+        const minPrice = parseFloat(req.query.minPrice) || 0;
+        const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
         try {
             const query = {
                 ...(searchQuery && { productName: { $regex: searchQuery, $options: 'i' } }),
                 ...(brandNameQuery && { brand: { $regex: brandNameQuery, $options: 'i' } }),
                 ...(categoryName && { category: { $regex: categoryName, $options: 'i' } }),
-                // price: { $gte: minPrice, $lte: maxPrice }
+                price: { $gte: minPrice, $lte: maxPrice }
               };
             const products = await productsCollection.find(query).skip(skip).limit(limit).toArray();
             console.log(products.length)
