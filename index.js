@@ -41,6 +41,7 @@ async function run() {
         const brandNameQuery =req.query.brand || '';
         const minPrice = parseFloat(req.query.minPrice) || 0;
         const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
+        const sortOption = req.query.sort || '';
         try {
             const query = {
                 ...(searchQuery && { productName: { $regex: searchQuery, $options: 'i' } }),
@@ -48,7 +49,18 @@ async function run() {
                 ...(categoryName && { category: { $regex: categoryName, $options: 'i' } }),
                 price: { $gte: minPrice, $lte: maxPrice }
               };
-            const products = await productsCollection.find(query).skip(skip).limit(limit).toArray();
+
+              let sort = {};
+        if (sortOption === 'price-asc') {
+            sort = { price: 1 }; // Sort by price ascending
+        } else if (sortOption === 'price-desc') {
+            sort = { price: -1 }; // Sort by price descending
+        } else if (sortOption === 'date-desc') {
+            sort = { productCreationDateTime: -1 }; // Sort by date descending (newest first)
+        }
+
+
+            const products = await productsCollection.find(query).sort(sort).skip(skip).limit(limit).toArray();
             console.log(products.length)
             // Count the total number of products
     const totalProducts = await productsCollection.estimatedDocumentCount(query);
