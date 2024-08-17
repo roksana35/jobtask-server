@@ -7,7 +7,12 @@ const port=process.env.PORT||5000;
 
 
 app.use(cors({
-    origin: 'http://localhost:5173' // Add your frontend's origin here
+    origin:[
+      'http://localhost:5173',
+      "https://jobtask-47348.web.app",
+      "https://jobtask-47348.firebaseapp.com"
+
+    ],  // Add your frontend's origin here
 }));
   app.use(express.json());
 
@@ -29,7 +34,7 @@ const productsCollection = client.db("jobtaskDB").collection("products");
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     app.get('/products',async(req,res)=>{
         const page = parseInt(req.query.page) || 1; // Default to 1 if not provided
@@ -61,10 +66,10 @@ async function run() {
 
 
             const products = await productsCollection.find(query).sort(sort).skip(skip).limit(limit).toArray();
-            console.log(products.length)
+            // console.log(products.length)
             // Count the total number of products
     const totalProducts = await productsCollection.estimatedDocumentCount(query);
-    console.log('totalproducts:',totalProducts)
+    // console.log('totalproducts:',totalProducts)
     res.json({
         products,
         totalPages: Math.ceil(totalProducts / limit),
